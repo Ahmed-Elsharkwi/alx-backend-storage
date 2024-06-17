@@ -1,3 +1,4 @@
+-- comment
 delimiter $$
 CREATE TRIGGER change_email BEFORE UPDATE ON users
 FOR EACH ROW
