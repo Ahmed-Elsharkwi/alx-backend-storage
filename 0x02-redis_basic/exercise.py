@@ -12,6 +12,7 @@ import json
 def count_calls(method: Callable) -> Callable:
     """ count how many times methods of the cache are called """
     key = method.__qualname__
+
     @wraps(method)
     def wrapper(self, *args, **kwargs):
         """ return a function """
@@ -19,6 +20,7 @@ def count_calls(method: Callable) -> Callable:
         return method(self, *args, **kwargs)
 
     return wrapper
+
 
 def call_history(method: Callable) -> Callable:
     """ push the inputs keys and the outputs """
@@ -35,6 +37,7 @@ def call_history(method: Callable) -> Callable:
         return result
     return wrapper
 
+
 def replay(method: Callable) -> None:
     """ display the history of calls """
     cache = redis.Redis()
@@ -49,6 +52,7 @@ def replay(method: Callable) -> None:
         outputs = outputs.decode("utf-8")
         print(f"{method.__qualname__}(*{inputs}) -> {outputs}")
 
+
 class Cache:
     """ class Cache """
 
@@ -61,11 +65,11 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
-    def get(self, key: str, fn: 
+    def get(self, key: str, fn:
             Optional[callable] = None) -> Union[str, bytes, int, float]:
         """ get the desired data """
         data = self._redis.get(key)
-        if fn != None:
+        if fn is not None:
             data = fn(data)
         return data
 
