@@ -19,6 +19,21 @@ def count_calls(method: Callable) -> Callable:
         return method(self, *args, **kwargs)
 
     return wrapper
+
+def call_history(method: Callable) -> Callable:
+    """ push the inputs keys and the outputs """
+    key = method.__qualname__
+    inputs = key + ":inputs"
+    outputs = key + ":outputs"
+
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        """ wrapper """
+        self._redis.rpush(inputs, str(args))
+        result = method(self, *args, **kwargs)
+        self._redis.rpush(outputs, result)
+        return result
+    return wrapper
         
 class Cache:
     """ class Cache """
@@ -47,6 +62,8 @@ class Cache:
     def get_int(self, key: str) -> int:
         """ return integer """
         return int(self._redis.get(key))
+
+    @call_history
     @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """
