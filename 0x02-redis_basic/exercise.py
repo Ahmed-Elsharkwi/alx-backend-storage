@@ -2,12 +2,24 @@
 """
 create class Cache
 """
+from functools import wraps
 from typing import Union, Callable, Optional
 import uuid
 import redis
 import json
 
 
+def count_calls(method: Callable) -> Callable:
+    """ count how many times methods of the cache are called """
+    key = method.__qualname__
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        """ return a function """
+        self._redis.incr(key)
+        return method(self, *args, **kwargs)
+
+    return wrapper
+        
 class Cache:
     """ class Cache """
 
@@ -35,7 +47,7 @@ class Cache:
     def get_int(self, key: str) -> int:
         """ return integer """
         return int(self._redis.get(key))
-
+    @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """
         takes a data argument and returns a string.
