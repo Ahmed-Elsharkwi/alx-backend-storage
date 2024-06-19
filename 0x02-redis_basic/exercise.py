@@ -2,7 +2,7 @@
 """
 create class Cache
 """
-from typing import Union
+from typing import Union, Callable, Optional
 import uuid
 import redis
 import json
@@ -19,6 +19,22 @@ class Cache:
         """
         self._redis = redis.Redis()
         self._redis.flushdb()
+
+    def get(self, key: str, fn: 
+            Optional[callable] = None) -> Union[str, bytes, int, float]:
+        """ get the desired data """
+        data = self._redis.get(key)
+        if fn != None:
+            data = fn(data)
+        return data
+
+    def get_str(self, key: str) -> str:
+        """ return string """
+        return str(self._redis.get(key))
+
+    def get_int(self, key: str) -> int:
+        """ return integer """
+        return int(self._redis.get(key))
 
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """
