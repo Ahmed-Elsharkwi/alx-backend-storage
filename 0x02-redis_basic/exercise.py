@@ -20,7 +20,7 @@ class Cache:
         self.__redis = redis.Redis()
         self.__redis.flushdb(True)
 
-    def store(self, data: Union[str, bytes, int | float]) -> str:
+    def store(self, data: Union[str, bytes, float, int]) -> str:
         """
         takes a data argument and returns a string.
         The method should generate a random key (e.g. using uuid),
