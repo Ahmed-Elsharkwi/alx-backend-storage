@@ -34,7 +34,21 @@ def call_history(method: Callable) -> Callable:
         self._redis.rpush(outputs, result)
         return result
     return wrapper
-        
+
+def replay(method: Callable) -> None:
+    """ display the history of calls """
+    cache = redis.Redis()
+    num = cache.get(method.__qualname__).decode("utf-8")
+    print(f"{method.__qualname__} was called {num} times:")
+    inputs = cache.lrange("{}:inputs".format(
+        method.__qualname__), 0, -1)
+    outputs = cache.lrange("{}:outputs".format(
+        method.__qualname__), 0, -1)
+    for inputs, outputs in zip(inputs, outputs):
+        inputs = inputs.decode("utf-8")
+        outputs = outputs.decode("utf-8")
+        print(f"{method.__qualname__}(*{inputs}) -> {outputs}")
+
 class Cache:
     """ class Cache """
 
